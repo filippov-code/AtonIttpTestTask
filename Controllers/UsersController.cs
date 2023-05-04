@@ -14,11 +14,10 @@ using System.Text.RegularExpressions;
 namespace AtonIttpTestTask.Controllers
 {
     [Route("api/[controller]/[action]")]
-    //ЗАТЕСТИТЬ МЕТОД СТАРШЕ ЧЕМ
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private IUserRepository _userRepository;
+        private readonly IUserRepository _userRepository;
 
         public UsersController(IUserRepository userRepository)
         {
@@ -53,7 +52,6 @@ namespace AtonIttpTestTask.Controllers
                 return BirthdayIsNotValid();
             if (!await _userRepository.IsLoginAreAvailableAsync(login))
                 return LoginAreBusy();
-
             User? caller = await _userRepository.GetByLoginAndPasswordAsync(callerLogin, callerPassword);
             if (caller == null)
                 return CallerNotFound();
@@ -69,13 +67,13 @@ namespace AtonIttpTestTask.Controllers
                 Birthday = birthday,
                 Admin = isAdmin,
                 CreatedOn = DateTime.Now,
-                CreatedBy = caller.Name,
+                CreatedBy = caller.Login,
                 ModifiedOn = DateTime.Now,
-                ModifiedBy = caller.Name
+                ModifiedBy = caller.Login
             };
-
             await _userRepository.CreateAsync(newUser);
             await _userRepository.SaveAsync();
+
             return CreatedAtAction(nameof(GetUser), value: newUser );
         }
         #endregion
@@ -192,10 +190,6 @@ namespace AtonIttpTestTask.Controllers
             if (user == null)
                 return UserNotFound();
 
-            //(User? user, ActionResult? error) = await GetAdminOrActiveUserForEditingAsync(caller, userLogin);
-            //if (user == null)
-            //    return error;
-
             bool modified = false;
             if (newName != null)
             {
@@ -215,7 +209,7 @@ namespace AtonIttpTestTask.Controllers
             if (modified)
             {
                 user.ModifiedOn = DateTime.Now;
-                user.ModifiedBy = caller.Name;
+                user.ModifiedBy = caller.Login;
                 _userRepository.Update(user);
                 await _userRepository.SaveAsync();
             }
@@ -244,15 +238,12 @@ namespace AtonIttpTestTask.Controllers
             if (user == null)
                 return UserNotFound();
 
-            //(User? user, ActionResult? error) = await GetAdminOrActiveUserForEditingAsync(caller, userLogin);
-            //if (user == null)
-            //    return error;
-
             user.Password = newPassword;
             user.ModifiedOn = DateTime.Now;
-            user.ModifiedBy = caller.Name;
+            user.ModifiedBy = caller.Login;
             _userRepository.Update(user);
             await _userRepository.SaveAsync();
+
             return NoContent();
         }
         /// <summary>
@@ -277,15 +268,12 @@ namespace AtonIttpTestTask.Controllers
             if (user == null)
                 return UserNotFound();
 
-            //(User? user, ActionResult? error) = await GetAdminOrActiveUserForEditingAsync(caller, userLogin);
-            //if (user == null)
-            //    return error;
-
             user.Login = newLogin;
             user.ModifiedOn = DateTime.Now;
-            user.ModifiedBy = caller.Name;
+            user.ModifiedBy = caller.Login;
             _userRepository.Update(user);
             await _userRepository.SaveAsync();
+
             return Ok();
         }
         /// <summary>
@@ -303,7 +291,6 @@ namespace AtonIttpTestTask.Controllers
                 return CallerNotFound();
             if (!caller.Admin)
                 return Forbidden();
-
             User? user = await _userRepository.GetByLoginAsync(userLogin);
             if (user == null)
                 return UserNotFound();
@@ -311,9 +298,10 @@ namespace AtonIttpTestTask.Controllers
             user.RevokedOn = null;
             user.RevokedBy = null;
             user.ModifiedOn = DateTime.Now;
-            user.ModifiedBy = caller.Name;
+            user.ModifiedBy = caller.Login;
             _userRepository.Update(user);
             await _userRepository.SaveAsync();
+
             return Ok();
         }
         #endregion
@@ -335,7 +323,6 @@ namespace AtonIttpTestTask.Controllers
                 return CallerNotFound();
             if (!caller.Admin)
                 return Forbidden();
-
             User? user = await _userRepository.GetByLoginAsync(userLogin);
             if (user == null)
                 return UserNotFound();
@@ -345,7 +332,7 @@ namespace AtonIttpTestTask.Controllers
                 user.RevokedOn = DateTime.Now;
                 user.RevokedBy = caller.Login;
                 user.ModifiedOn = DateTime.Now;
-                user.ModifiedBy = caller.Name;
+                user.ModifiedBy = caller.Login;
                 _userRepository.Update(user);
                 await _userRepository.SaveAsync();
                 return Ok();
@@ -412,7 +399,7 @@ namespace AtonIttpTestTask.Controllers
         }
         private ActionResult UserNotFound()
         {
-            return NotFound("The calling user was not found");
+            return NotFound("The user was not found");
         }
         private ActionResult Forbidden()
         {
