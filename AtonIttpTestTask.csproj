@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="AtonIttpTestTask.Domain\**" />
+    <Compile Remove="AtonIttpTestTask.Repository\**" />
+    <Compile Remove="DTO\**" />
+    <Compile Remove="Models\**" />
+    <Content Remove="AtonIttpTestTask.Domain\**" />
+    <Content Remove="AtonIttpTestTask.Repository\**" />
+    <Content Remove="DTO\**" />
+    <Content Remove="Models\**" />
+    <EmbeddedResource Remove="AtonIttpTestTask.Domain\**" />
+    <EmbeddedResource Remove="AtonIttpTestTask.Repository\**" />
+    <EmbeddedResource Remove="DTO\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <None Remove="AtonIttpTestTask.Domain\**" />
+    <None Remove="AtonIttpTestTask.Repository\**" />
+    <None Remove="DTO\**" />
+    <None Remove="Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="AtonIttpTestTask.Repository\AtonIttpTestTask.Repository.csproj" />
+  </ItemGroup>
+
+</Project>
